@@ -22,7 +22,7 @@ class FormattedLineBuilder {
      * escapes.
      */
     fun add(obj: Any?) = apply {
-        if (adder != null) throw FormattedLineBuilderException("Adding elements during entry type.\n$line")
+        if (numclrs != 0) throw FormattedLineBuilderException("Adding elements during entry type.\n$line")
         rawAdd(Html.escapeHtml(obj.toString()))
     }
 
@@ -30,7 +30,7 @@ class FormattedLineBuilder {
      * Add without escaping html characters.
      */
     fun rawAdd(obj: Any?) = apply {
-        if (adder != null) throw FormattedLineBuilderException("Adding raw elements during entry type.\n$line")
+        if (numclrs != 0) throw FormattedLineBuilderException("Adding raw elements during entry type.\n$line")
         line.append(obj)
     }
 
@@ -82,20 +82,19 @@ class FormattedLineBuilder {
      * Add formatted data, in the form of "label : data."
      * Follow the call to this building method with two color methods, which will be
      * used for the label and the data, respectively.
-     * <pre>
+     * ```
      * new FormattedLineBuilder()
      * .startData("label", "data")
-     * .[FormattedLineBuilder.red]()
-     * .[FormattedLineBuilder.clr]("00FF00")</pre>
+     * .red()
+     * .clr("00FF00")
      */
     fun startData(label: String, data: Any) = apply {
-        if (adder != null) throw FormattedLineBuilderException(
+        if (numclrs != 0) throw FormattedLineBuilderException(
             "Starting data entry during another entry type.\nadder : $adder\n$line"
         )
         numclrs = 2
         val prevClr = curClr
         adder = { clrs ->
-            for (i in clrs.indices) if (clrs[i].isBlank()) clrs[i] = "white"
             clr(clrs[0])
             add(label)
             black()
@@ -110,34 +109,33 @@ class FormattedLineBuilder {
      * Add a slider, ranging from the given min and max, with the bar at the given current position.
      * Follow the call to this building method with three color methods, which will be used for
      * the min/max labels, the bar, and the slider range, respectively.
-     * <pre>
+     * ```
      * new FormattedLineBuilder()
      * .startSlider(0, 100, 30)
-     * .[FormattedLineBuilder.blue]()
-     * .[FormattedLineBuilder.clr]("00FFFF")
-     * .[FormattedLineBuilder.red]()</pre>
+     * .blue()
+     * .clr("00FFFF")
+     * .red()
      */
     fun startSlider(min: Double, max: Double, cur: Double) = apply {
-        if (adder != null) throw FormattedLineBuilderException(
-            "Starting slider entry during another entry type.\n$line"
-        )
+        if (numclrs != 0) throw FormattedLineBuilderException("Starting slider entry during another entry type.\n$line")
+        if (min >= max) throw FormattedLineBuilderException("Invalid slider range: $min-$max.\n$line")
+
         numclrs = 3
         val prevClr = curClr
-        val percent = cur / (max + 1e-6 - min)
+        val percent = (cur + (0 - min)) / (max + (0 - min))
         val idx = (20 * percent).roundToInt()
 
         adder = { clrs ->
-            for (i in clrs.indices) if (clrs[i].isBlank()) clrs[i] = "white"
             clr(clrs[0])
             add(min)
             clr(clrs[2])
-            add(" [")
+            add(" 【")
             repeat("━", idx)
             clr(clrs[1])
             add("█")
             clr(clrs[2])
-            repeat("━", 20 - idx - 1)
-            add("] ")
+            repeat("━", 20 - idx)
+            add("】 ")
             clr(clrs[0])
             add(max)
             clr(clrs[1])
@@ -154,25 +152,24 @@ class FormattedLineBuilder {
      * used for completed and uncompleted parts of the bar, respectively.
      */
     fun startProgressBar(min: Double, max: Double, cur: Double) = apply {
-        if (adder != null) throw FormattedLineBuilderException(
-            "Starting progress bar entry during another entry type.\n$line"
-        )
+        if (numclrs != 0) throw FormattedLineBuilderException("Starting progress bar entry during another entry type.\n$line")
+        if (min >= max) throw FormattedLineBuilderException("Invalid progress bar range: $min-$max.\n$line")
+
         numclrs = 3
         val prevClr = curClr
-        val percent = cur / (max + 1e-6 - min)
+        val percent = (cur + (0 - min)) / (max + (0 - min))
         val idx = (20 * percent).roundToInt()
 
         adder = { clrs ->
-            for (i in clrs.indices) if (clrs[i].isBlank()) clrs[i] = "white"
             clr(clrs[1])
-            add("[")
+            add("【")
             clr(clrs[0])
-            repeat("█", idx + 1)
+            repeat("█", idx)
             clr(clrs[1])
-            repeat("━", 20 - idx - 1)
-            add("] ")
+            repeat("░", 20 - idx)
+            add("】 ")
             clr(clrs[0])
-            add((percent * 100).toInt())
+            add("%.2f".format(percent * 100))
             add("% ")
             clr(prevClr)
         }
@@ -265,9 +262,8 @@ class FormattedLineBuilder {
     /**
      * Repeat the given string a number of times.
      */
-    fun repeat(obj: Any, times: Int): FormattedLineBuilder {
-        repeat(times) { add(obj) }
-        return this
+    fun repeat(obj: Any, times: Int) = apply {
+        add(obj.toString().repeat(times))
     }
 
     /**
@@ -288,9 +284,9 @@ class FormattedLineBuilder {
 
     fun violet() = clr("violet")
 
-    fun lime() = clr("69FF00")
+    fun lime() = clr("lime")
 
-    fun cyan() = clr("00E5E5")
+    fun cyan() = clr("cyan")
 
     fun purple() = clr("5A00E2")
 
@@ -314,7 +310,7 @@ class FormattedLineBuilder {
         return line.toString()
     }
 
-    class FormattedLineBuilderException(msg: String?) : RuntimeException(msg)
+    class FormattedLineBuilderException(msg: String) : RuntimeException(msg)
 
     companion object {
         /**

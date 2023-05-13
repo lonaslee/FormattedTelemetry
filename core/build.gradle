@@ -43,8 +43,10 @@ afterEvaluate {
 }
 
 dependencies {
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
     compileOnly 'org.firstinspires.ftc:RobotCore:8.1.0'
 }
+
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
