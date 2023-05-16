@@ -155,7 +155,7 @@ class FormattedLineBuilder {
         if (numclrs != 0) throw FormattedLineBuilderException("Starting progress bar entry during another entry type.\n$line")
         if (min >= max) throw FormattedLineBuilderException("Invalid progress bar range: $min-$max.\n$line")
 
-        numclrs = 3
+        numclrs = 2
         val prevClr = curClr
         val percent = (cur + (0 - min)) / (max + (0 - min))
         val idx = (20 * percent).roundToInt()
@@ -177,87 +177,50 @@ class FormattedLineBuilder {
 
     /**
      * Add a spinner, automatically determining its current phase based on
-     * [System.currentTimeMillis].
+     * [System.currentTimeMillis]. The length of each phase is limited by the telemetry's
+     * update speed, which can be changed with the [Telemetry.setMsTransmissionInterval]
+     * method. The [replacement] parameter will be put in place of the spinner if it is not null,
+     * which is useful if the spinner is used to indicate something in progress.
      */
-    fun spinner(phases: Array<String>, phaseLengthMillis: Int, offset: Int) =
-        add(phases[((System.currentTimeMillis() / phaseLengthMillis + offset) % phases.size).toInt()])
+    fun spinner(
+        phases: Array<String>, phaseLengthMillis: Int, offset: Int, replacement: String? = null
+    ) = add(
+        replacement
+            ?: phases[((System.currentTimeMillis() / phaseLengthMillis + offset) % phases.size).toInt()]
+    )
 
     /**
      * Default spinner with phase length of 100ms and offset of 0.
      */
     @JvmOverloads
-    fun spinner(phaseLengthMillis: Int = 100, offset: Int = 0) = spinner(
-        arrayOf("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"), phaseLengthMillis, offset
-    )
+    fun spinner(phaseLengthMillis: Int = 100, offset: Int = 0, replacement: String? = null) =
+        spinner(
+            arrayOf("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"),
+            phaseLengthMillis,
+            offset,
+            replacement
+        )
 
     @JvmOverloads
-    fun spinnerBig(phaseLengthMillis: Int = 100, offset: Int = 0) = spinner(
-        arrayOf(
-            "⡀⠀",
-            "⠄⠀",
-            "⢂⠀",
-            "⡂⠀",
-            "⠅⠀",
-            "⢃⠀",
-            "⡃⠀",
-            "⠍⠀",
-            "⢋⠀",
-            "⡋⠀",
-            "⠍⠁",
-            "⢋⠁",
-            "⡋⠁",
-            "⠍⠉",
-            "⠋⠉",
-            "⠋⠉",
-            "⠉⠙",
-            "⠉⠙",
-            "⠉⠩",
-            "⠈⢙",
-            "⠈⡙",
-            "⢈⠩",
-            "⡀⢙",
-            "⠄⡙",
-            "⢂⠩",
-            "⡂⢘",
-            "⠅⡘",
-            "⢃⠨",
-            "⡃⢐",
-            "⠍⡐",
-            "⢋⠠",
-            "⡋⢀",
-            "⠍⡁",
-            "⢋⠁",
-            "⡋⠁",
-            "⠍⠉",
-            "⠋⠉",
-            "⠋⠉",
-            "⠉⠙",
-            "⠉⠙",
-            "⠉⠩",
-            "⠈⢙",
-            "⠈⡙",
-            "⠈⠩",
-            "⠀⢙",
-            "⠀⡙",
-            "⠀⠩",
-            "⠀⢘",
-            "⠀⡘",
-            "⠀⠨",
-            "⠀⢐",
-            "⠀⡐",
-            "⠀⠠",
-            "⠀⢀",
-            "⠀⡀"
-        ), phaseLengthMillis, offset
-    )
+    fun spinnerBig(phaseLengthMillis: Int = 100, offset: Int = 0, replacement: String? = null) =
+        spinner(
+            arrayOf(
+                // @formatter:off
+            "⡀⠀", "⠄⠀", "⢂⠀", "⡂⠀", "⠅⠀", "⢃⠀", "⡃⠀", "⠍⠀", "⢋⠀", "⡋⠀", "⠍⠁", "⢋⠁", "⡋⠁", "⠍⠉",
+            "⠋⠉", "⠋⠉", "⠉⠙", "⠉⠙", "⠉⠩", "⠈⢙", "⠈⡙", "⢈⠩", "⡀⢙", "⠄⡙", "⢂⠩", "⡂⢘", "⠅⡘",
+            "⢃⠨", "⡃⢐", "⠍⡐", "⢋⠠", "⡋⢀", "⠍⡁", "⢋⠁", "⡋⠁", "⠍⠉", "⠋⠉", "⠋⠉", "⠉⠙", "⠉⠙", "⠉⠩",
+            "⠈⢙", "⠈⡙", "⠈⠩", "⠀⢙", "⠀⡙", "⠀⠩", "⠀⢘", "⠀⡘", "⠀⠨", "⠀⢐", "⠀⡐", "⠀⠠", "⠀⢀", "⠀⡀"
+                // @formatter:on
+            ), phaseLengthMillis, offset, replacement
+        )
 
     @JvmOverloads
-    fun spinnerLine(phaseLengthMillis: Int = 100, offset: Int = 0) =
-        spinner(arrayOf("-", "\\", "|", "/"), phaseLengthMillis, offset)
+    fun spinnerLine(phaseLengthMillis: Int = 100, offset: Int = 0, replacement: String? = null) =
+        spinner(arrayOf("-", "\\", "|", "/"), phaseLengthMillis, offset, replacement)
 
     @JvmOverloads
-    fun spinnerNoise(phaseLengthMillis: Int = 100, offset: Int = 0) =
-        spinner(arrayOf("▓", "▒", "░"), phaseLengthMillis, offset)
+    fun spinnerNoise(phaseLengthMillis: Int = 100, offset: Int = 0, replacement: String? = null) =
+        spinner(arrayOf("▓", "▒", "░"), phaseLengthMillis, offset, replacement)
 
     /**
      * Repeat the given string a number of times.

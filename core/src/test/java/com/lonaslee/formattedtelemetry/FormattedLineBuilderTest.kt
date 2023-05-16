@@ -35,6 +35,7 @@ class FormattedLineBuilderTest {
             .red()
             .magenta()
             .pink()
+        println(lb.toString())
     }
 
     @Test
