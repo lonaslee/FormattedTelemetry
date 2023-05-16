@@ -1,4 +1,4 @@
-package com.lonaslee.formattedtelemetry
+package com.lonaslee.formattedtelemetry;
 
 import android.text.Html
 import org.firstinspires.ftc.robotcore.external.Telemetry
@@ -39,10 +39,12 @@ class FormattedLineBuilder {
      * Not all named colors are supported.
      */
     fun clr(clr: String) = apply {
-        val newclr = try {
-            clr.removePrefix("0x").removePrefix("#").also { it.toLong(16) }
-        } catch (e: NumberFormatException) {
-            clr
+        val newclr = clr.removePrefix("0x").removePrefix("#").let {
+            try {
+                it.toLong(16).toString()
+            } catch (e: NumberFormatException) {
+                it
+            }
         }
 
         if (numclrs != 0) {
@@ -137,14 +139,14 @@ class FormattedLineBuilder {
             add(max)
             clr(clrs[1])
             add(" | ")
-            add(cur)
+            add(formatDecimal(cur))
             add(" ")
             clr(prevClr)
         }
     }
 
     /**
-     * Similar to [FormattedLineBuilder.startSlider], except
+     * Similar to [startSlider], except
      * it is a progress bar. Follow calls to this method with two color methods, which will be
      * used for completed and uncompleted parts of the bar, respectively.
      */
@@ -166,10 +168,11 @@ class FormattedLineBuilder {
             repeat("░", 20 - idx)
             add("】 ")
             clr(clrs[0])
-            add("%.2f".format(percent * 100))
+            add(formatDecimal(percent * 100))
             add("% ")
             clr(prevClr)
         }
+
     }
 
     /**
@@ -203,10 +206,61 @@ class FormattedLineBuilder {
         spinner(
             arrayOf(
                 // @formatter:off
-            "⡀⠀", "⠄⠀", "⢂⠀", "⡂⠀", "⠅⠀", "⢃⠀", "⡃⠀", "⠍⠀", "⢋⠀", "⡋⠀", "⠍⠁", "⢋⠁", "⡋⠁", "⠍⠉",
-            "⠋⠉", "⠋⠉", "⠉⠙", "⠉⠙", "⠉⠩", "⠈⢙", "⠈⡙", "⢈⠩", "⡀⢙", "⠄⡙", "⢂⠩", "⡂⢘", "⠅⡘",
-            "⢃⠨", "⡃⢐", "⠍⡐", "⢋⠠", "⡋⢀", "⠍⡁", "⢋⠁", "⡋⠁", "⠍⠉", "⠋⠉", "⠋⠉", "⠉⠙", "⠉⠙", "⠉⠩",
-            "⠈⢙", "⠈⡙", "⠈⠩", "⠀⢙", "⠀⡙", "⠀⠩", "⠀⢘", "⠀⡘", "⠀⠨", "⠀⢐", "⠀⡐", "⠀⠠", "⠀⢀", "⠀⡀"
+                "⡀⠀",
+                "⠄⠀",
+                "⢂⠀",
+                "⡂⠀",
+                "⠅⠀",
+                "⢃⠀",
+                "⡃⠀",
+                "⠍⠀",
+                "⢋⠀",
+                "⡋⠀",
+                "⠍⠁",
+                "⢋⠁",
+                "⡋⠁",
+                "⠍⠉",
+                "⠋⠉",
+                "⠋⠉",
+                "⠉⠙",
+                "⠉⠙",
+                "⠉⠩",
+                "⠈⢙",
+                "⠈⡙",
+                "⢈⠩",
+                "⡀⢙",
+                "⠄⡙",
+                "⢂⠩",
+                "⡂⢘",
+                "⠅⡘",
+                "⢃⠨",
+                "⡃⢐",
+                "⠍⡐",
+                "⢋⠠",
+                "⡋⢀",
+                "⠍⡁",
+                "⢋⠁",
+                "⡋⠁",
+                "⠍⠉",
+                "⠋⠉",
+                "⠋⠉",
+                "⠉⠙",
+                "⠉⠙",
+                "⠉⠩",
+                "⠈⢙",
+                "⠈⡙",
+                "⠈⠩",
+                "⠀⢙",
+                "⠀⡙",
+                "⠀⠩",
+                "⠀⢘",
+                "⠀⡘",
+                "⠀⠨",
+                "⠀⢐",
+                "⠀⡐",
+                "⠀⠠",
+                "⠀⢀",
+                "⠀⡀"
                 // @formatter:on
             ), phaseLengthMillis, offset, replacement
         )
@@ -227,9 +281,10 @@ class FormattedLineBuilder {
     }
 
     /**
-     * Add a newline.
+     * Add a newline. On some devices this might not work, and in that case
+     * simply use [add] with the newline character "\n".
      */
-    fun nl() = add("\n")
+    fun nl() = rawAdd("<br>")
 
     /* --------------- styles --------------- */
 
@@ -238,43 +293,43 @@ class FormattedLineBuilder {
     private var underlined = false
     private var striked = false
 
-    fun bold() = add("<b>").also { bolded = true }
+    fun bold() = rawAdd("<b>").also { bolded = true }
 
-    fun unbold() = add("</b>").also { bolded = false }
+    fun unbold() = rawAdd("</b>").also { bolded = false }
 
-    fun italicize() = add("<i>").also { italicized = true }
+    fun italicize() = rawAdd("<i>").also { italicized = true }
 
-    fun unitalicize() = add("</i>").also { italicized = false }
+    fun unitalicize() = rawAdd("</i>").also { italicized = false }
 
-    fun underline() = add("<u>").also { underlined = true }
+    fun underline() = rawAdd("<u>").also { underlined = true }
 
-    fun ununderline() = add("</u>").also { underlined = false }
+    fun ununderline() = rawAdd("</u>").also { underlined = false }
 
-    fun strike() = add("<s>").also { striked = true }
+    fun strike() = rawAdd("<s>").also { striked = true }
 
-    fun unstrike() = add("</s>").also { striked = false }
+    fun unstrike() = rawAdd("</s>").also { striked = false }
 
     private var size = 0
 
     fun big() = apply {
         if (size == -1) unsmall()
-        add("<big>")
+        rawAdd("<big>")
         size = 1
     }
 
     fun unbig() = apply {
-        add("</big>")
+        rawAdd("</big>")
         size = 0
     }
 
     fun small() = apply {
         if (size == 1) unbig()
-        add("<small>")
+        rawAdd("<small>")
         size = -1
     }
 
     fun unsmall() = apply {
-        add("</small>")
+        rawAdd("</small>")
         size = 0
     }
 
@@ -282,23 +337,23 @@ class FormattedLineBuilder {
 
     fun superscript() = apply {
         if (script == -1) unsubscript()
-        add("<sup>")
+        rawAdd("<sup>")
         script = 1
     }
 
     fun unsuperscript() = apply {
-        add("</sup>")
+        rawAdd("</sup>")
         script = 0
     }
 
     fun subscript() = apply {
         if (script == 1) unsuperscript()
-        add("<sub>")
+        rawAdd("<sub>")
         script = -1
     }
 
     fun unsubscript() = apply {
-        add("</sub>")
+        rawAdd("</sub>")
         script = 0
     }
 
@@ -324,21 +379,21 @@ class FormattedLineBuilder {
 
     fun blue() = clr("blue")
 
-    fun orange() = clr("EA5D00")
+    fun orange() = clr("FFA500")
 
     fun green() = clr("green")
 
-    fun violet() = clr("violet")
+    fun violet() = clr("7F00FF")
 
-    fun lime() = clr("lime")
+    fun lime() = clr("32CD32")
 
     fun cyan() = clr("cyan")
 
-    fun purple() = clr("5A00E2")
+    fun purple() = clr("A020F0")
 
-    fun magenta() = clr("BE00FF")
+    fun magenta() = clr("FF00FF")
 
-    fun pink() = clr("FF3ADC")
+    fun pink() = clr("FFC0CB")
 
     fun lightGray() = clr("808080")
 
@@ -370,5 +425,8 @@ class FormattedLineBuilder {
             msTransmissionInterval = msRefreshRate
             update()
         }
+
+        @JvmStatic
+        fun formatDecimal(decimal: Double) = "%.2f".format(decimal)
     }
 }
