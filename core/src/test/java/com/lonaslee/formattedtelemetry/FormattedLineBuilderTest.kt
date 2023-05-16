@@ -5,6 +5,42 @@ import kotlin.system.measureNanoTime
 
 class FormattedLineBuilderTest {
     @Test
+    fun styles() {
+        val lb = FormattedLineBuilder().magenta()
+            .purple()
+            .add("hello ")
+            .bold()
+            .add("world")
+            .add(": still bold.")
+            .nl()
+            .unbold()
+            .add("supersubs: ")
+            .superscript()
+            .add("super!!!")
+            .subscript()
+            .add("sub!!!!!")
+            .unsubscript()
+            .add(" regular text")
+            .nl()
+            .bold()
+            .italicize()
+            .underline()
+            .strike()
+            .add("WOWZERS THE EMPHASIS")
+            .clearStyles()
+            .add(" and back to normal")
+            .nl()
+            .big()
+            .add("BIG BOI")
+            .nl()
+            .small()
+            .add("Smol boi")
+            .unsmall()
+            .add(" the norm")
+        println(lb.toString())
+    }
+
+    @Test
     fun benchmark() {
         val time = measureNanoTime {
             slider()

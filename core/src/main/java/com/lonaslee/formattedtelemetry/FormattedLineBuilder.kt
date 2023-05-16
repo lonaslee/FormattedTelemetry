@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
  */
 class FormattedLineBuilder {
     private val line = StringBuilder()
-    private var curClr: String = ""
+    private var curClr = ""
     private var spanning = false
 
     private val colors = mutableListOf<String>()
@@ -22,24 +22,21 @@ class FormattedLineBuilder {
      * escapes.
      */
     fun add(obj: Any?) = apply {
-        if (numclrs != 0) throw FormattedLineBuilderException("Adding elements during entry type.\n$line")
+        if (numclrs != 0) throw FormattedLineBuilderException("Adding objects during entry type.\n$line")
         rawAdd(Html.escapeHtml(obj.toString()))
     }
 
     /**
-     * Add without escaping html characters.
+     * [add] without escaping html characters.
      */
     fun rawAdd(obj: Any?) = apply {
-        if (numclrs != 0) throw FormattedLineBuilderException("Adding raw elements during entry type.\n$line")
+        if (numclrs != 0) throw FormattedLineBuilderException("Raw adding objects during entry type.\n$line")
         line.append(obj)
     }
 
     /**
-     * Switch the current text color to a new color.
-     *
-     * @param clr Name or hex code of the color. Some of them don't work on phone
-     * displays.
-     * @return this
+     * Switch the current text color to a new color, given its name or hex code.
+     * Not all named colors are supported.
      */
     fun clr(clr: String) = apply {
         val newclr = try {
@@ -233,6 +230,92 @@ class FormattedLineBuilder {
      * Add a newline.
      */
     fun nl() = add("\n")
+
+    /* --------------- styles --------------- */
+
+    private var bolded = false
+    private var italicized = false
+    private var underlined = false
+    private var striked = false
+
+    fun bold() = add("<b>").also { bolded = true }
+
+    fun unbold() = add("</b>").also { bolded = false }
+
+    fun italicize() = add("<i>").also { italicized = true }
+
+    fun unitalicize() = add("</i>").also { italicized = false }
+
+    fun underline() = add("<u>").also { underlined = true }
+
+    fun ununderline() = add("</u>").also { underlined = false }
+
+    fun strike() = add("<s>").also { striked = true }
+
+    fun unstrike() = add("</s>").also { striked = false }
+
+    private var size = 0
+
+    fun big() = apply {
+        if (size == -1) unsmall()
+        add("<big>")
+        size = 1
+    }
+
+    fun unbig() = apply {
+        add("</big>")
+        size = 0
+    }
+
+    fun small() = apply {
+        if (size == 1) unbig()
+        add("<small>")
+        size = -1
+    }
+
+    fun unsmall() = apply {
+        add("</small>")
+        size = 0
+    }
+
+    private var script = 0
+
+    fun superscript() = apply {
+        if (script == -1) unsubscript()
+        add("<sup>")
+        script = 1
+    }
+
+    fun unsuperscript() = apply {
+        add("</sup>")
+        script = 0
+    }
+
+    fun subscript() = apply {
+        if (script == 1) unsuperscript()
+        add("<sub>")
+        script = -1
+    }
+
+    fun unsubscript() = apply {
+        add("</sub>")
+        script = 0
+    }
+
+    /**
+     * Clear bold, italics, underline, strikethrough, big/small, and super/subscripts, if
+     * any are currently toggled.
+     */
+    fun clearStyles() = apply {
+        if (bolded) unbold()
+        if (italicized) unitalicize()
+        if (underlined) ununderline()
+        if (striked) unstrike()
+        if (size == 1) unbig()
+        if (size == -1) unsmall()
+        if (script == 1) unsuperscript()
+        if (script == -1) unsubscript()
+    }
 
     /* --------------- colors --------------- */
     fun red() = clr("red")
