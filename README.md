@@ -22,8 +22,7 @@ repositories {
 }
 
 dependencies {
-...
-implementation 'com.github.lonaslee:FormattedTelemetry:1.0.0-alpha2'
+    ...
+    implementation 'com.github.lonaslee:FormattedTelemetry:1.0.0'
 }
-
 ```
