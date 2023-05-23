@@ -1,4 +1,4 @@
-package com.lonaslee.formattedtelemetry;
+package com.lonaslee.formattedtelemetry
 
 import android.text.Html
 import org.firstinspires.ftc.robotcore.external.Telemetry
@@ -182,6 +182,7 @@ class FormattedLineBuilder {
      * method. The [replacement] parameter will be put in place of the spinner if it is not null,
      * which is useful if the spinner is used to indicate something in progress.
      */
+    @JvmOverloads
     fun spinner(
         phases: Array<String>, phaseLengthMillis: Int, offset: Int, replacement: String? = null
     ) = add(
@@ -206,61 +207,10 @@ class FormattedLineBuilder {
         spinner(
             arrayOf(
                 // @formatter:off
-                "⡀⠀",
-                "⠄⠀",
-                "⢂⠀",
-                "⡂⠀",
-                "⠅⠀",
-                "⢃⠀",
-                "⡃⠀",
-                "⠍⠀",
-                "⢋⠀",
-                "⡋⠀",
-                "⠍⠁",
-                "⢋⠁",
-                "⡋⠁",
-                "⠍⠉",
-                "⠋⠉",
-                "⠋⠉",
-                "⠉⠙",
-                "⠉⠙",
-                "⠉⠩",
-                "⠈⢙",
-                "⠈⡙",
-                "⢈⠩",
-                "⡀⢙",
-                "⠄⡙",
-                "⢂⠩",
-                "⡂⢘",
-                "⠅⡘",
-                "⢃⠨",
-                "⡃⢐",
-                "⠍⡐",
-                "⢋⠠",
-                "⡋⢀",
-                "⠍⡁",
-                "⢋⠁",
-                "⡋⠁",
-                "⠍⠉",
-                "⠋⠉",
-                "⠋⠉",
-                "⠉⠙",
-                "⠉⠙",
-                "⠉⠩",
-                "⠈⢙",
-                "⠈⡙",
-                "⠈⠩",
-                "⠀⢙",
-                "⠀⡙",
-                "⠀⠩",
-                "⠀⢘",
-                "⠀⡘",
-                "⠀⠨",
-                "⠀⢐",
-                "⠀⡐",
-                "⠀⠠",
-                "⠀⢀",
-                "⠀⡀"
+                "⡀⠀", "⠄⠀", "⢂⠀", "⡂⠀", "⠅⠀", "⢃⠀", "⡃⠀", "⠍⠀", "⢋⠀", "⡋⠀", "⠍⠁", "⢋⠁", "⡋⠁", "⠍⠉",
+                "⠋⠉", "⠋⠉", "⠉⠙", "⠉⠙", "⠉⠩", "⠈⢙", "⠈⡙", "⢈⠩", "⡀⢙", "⠄⡙", "⢂⠩", "⡂⢘", "⠅⡘", "⢃⠨",
+                "⡃⢐", "⠍⡐", "⢋⠠", "⡋⢀", "⠍⡁", "⢋⠁", "⡋⠁", "⠍⠉", "⠋⠉", "⠋⠉", "⠉⠙", "⠉⠙", "⠉⠩",
+                "⠈⢙", "⠈⡙", "⠈⠩", "⠀⢙", "⠀⡙", "⠀⠩", "⠀⢘", "⠀⡘", "⠀⠨", "⠀⢐", "⠀⡐", "⠀⠠", "⠀⢀", "⠀⡀"
                 // @formatter:on
             ), phaseLengthMillis, offset, replacement
         )
